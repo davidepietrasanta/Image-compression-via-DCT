@@ -25,17 +25,15 @@ def dct(v):
     c1 = np.zeros(N)
     a1 = np.zeros(N)
 
-    for k in range(0, N):
-        for j in range(0, N):
-            w[k][j] = np.cos( k * np.pi * (2*(j+1) - 1)/(2*N) ) ##
+    #for k in range(0, N):
+    #    for j in range(0, N):
+    #        w[k][j] = np.cos( k * np.pi * (2*(j+1) - 1)/(2*N) ) 
 
-    for k in range(0, N):
-        a1[k] = 1 / np.dot( w[k], w[k] ) ##
-
-        if k == 0:
-            a[k] = 1/np.sqrt(N)
-        else:
-            a[k] = np.sqrt(2)/np.sqrt(N)
+    #for k in range(0, N):
+    #    if k == 0:
+    #        a[k] = 1/np.sqrt(N)
+    #    else:
+    #        a[k] = np.sqrt(2)/np.sqrt(N)
 
     for k in range(0,N):
         if k == 0:
@@ -45,14 +43,13 @@ def dct(v):
 
         sum = 0
         for j in range(0,N):
-            sum = sum + ( np.cos(k * np.pi * (2*(j+1) - 1)/(2*N)) * v[j] ) ##
+            sum = sum + ( np.cos(k * np.pi * (2*(j+1) - 1)/(2*N)) * v[j] ) 
 
         c[k] = a_k * sum
-        c1[k] = a1[k] * sum
 
-    c = normalize(c)
-    c1 = normalize(c1)
-    return {'w':w, 'a':a, 'a1':a1, 'c':c, 'c1':c1 }
+    #c = normalize(c)
+    #return {'w':w, 'a':a, 'c':c }
+    return c
 
 
 def dct2(matrix):
@@ -65,10 +62,10 @@ def dct2(matrix):
     M = len(matrix) 
     matrix_r = np.zeros( shape=(M, N) , dtype=np.float64 ) #To store the discrete cosine transform
     for i in range(0,M):
-        matrix_r[i] = dct(matrix[i])['c1'] 
+        matrix_r[i] = dct(matrix[i])
 
     for j in range(0, N):
-        temp = dct(matrix_r[:,j])['c1']
+        temp = dct(matrix_r[:,j])
         for k in range(0, M):
             matrix_r[k,j] = temp[k]
 

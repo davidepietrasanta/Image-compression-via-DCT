@@ -6,39 +6,18 @@ from DCT2 import dct as my_dct
 from DCT2 import dct2 as my_dct2
 from DCT2 import naive_dtc2 as naive_dtc2
 
-from DCT2 import normalize
-
 
 #x = np.array([1.0, 2.0, 1.0, -1.0, 1.5])
 x = np.array([1.0, 2.0, 1.0])
 
+x = np.array([231, 32, 233, 161, 24, 71, 140, 245])
+#  4.01e+02 6.60e+00 1.09e+02 -1.12e+02 6.54e+01 1.21e+02 1.16e+02 2.88e+01
 
-y = dct(x) # , norm="ortho")
 my_y = my_dct(x)
-
-print("Library")
-print(y)
-print(normalize(y))
-print(sum(y))
-
 print(" \n My DCT")
-#print(my_y['a'])
-#print(my_y['a1'])
-
-print(my_y['c'])
-#print(my_y['c1'])
-print(sum(my_y['c']))
-#print(sum(my_y['c1']))
+print(my_y)
 
 
-matrix = np.array( [[ 255, 255, 255, 255, 255, 255, 255, 255 ],
-                    [ 255, 255, 255, 255, 255, 255, 255, 255 ],
-                    [ 255, 255, 255, 255, 255, 255, 255, 255 ],
-                    [ 255, 255, 255, 255, 255, 255, 255, 255 ],
-                    [ 255, 255, 255, 255, 255, 255, 255, 255 ],
-                    [ 255, 255, 255, 255, 255, 255, 255, 255 ],
-                    [ 255, 255, 255, 255, 255, 255, 255, 255 ],
-                    [ 255, 255, 255, 255, 255, 255, 255, 255 ]])
 
 
 #print(naive_dtc2(matrix))
@@ -52,6 +31,8 @@ test_matrix = np.array ( [[ 231, 32, 233, 161, 24, 71, 140, 245],
                         [ 193, 70, 174, 167, 41, 30, 127, 245],
                         [ 87, 149, 57, 192, 65, 129, 178, 228]])
 
-#print(naive_dtc2(test_matrix))
-#print('\n')
-#print(my_dct2(test_matrix))
+print('\n')
+print('Naive')
+print(naive_dtc2(test_matrix))
+print('\n MY DCT2')
+print(my_dct2(test_matrix))
