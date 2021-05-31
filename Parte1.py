@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import time
 from scipy.linalg import norm
 
+
 def normalize(v):
     """
         normalize a one dimension np.array.
@@ -277,7 +278,8 @@ def unit_test():
 
     assert array_equals( dct(x), x_dct, err=0.01 )
     assert array_equals( idct(dct(x)), x, err=0.01)
-    #assert array_equals( cv.dct(x/1.0), x_dct, err=0.1)
+    assert array_equals( cv.dct(x/1.0), x_dct, err=5)
+   
     
 
     test_matrix = np.array ( [[ 231, 32, 233, 161, 24, 71, 140, 245],
@@ -303,5 +305,27 @@ def unit_test():
     assert array_equals( idct2( dct2(test_matrix) ), test_matrix, err=0.01 )
     assert array_equals( naive_dct2(test_matrix), dct2(test_matrix), err=0.01 )
     assert array_equals( cv.dct(test_matrix/1.0), test_matrix_dct, err=0.01)
+
+
+import pathlib
+from scipy.fftpack import dct as scipy_dct
+
+unit_test()
+path = str(pathlib.Path(__file__).parent.absolute())
+
+min = 10
+max = 2510
+step = 500
+
+matrix = random_matrix(max)
+start = time.time()
+#k = scipy_dct(scipy_dct(matrix.T, norm='ortho').T, norm='ortho')
+k  = cv.dct(matrix/1.0)
+end = time.time()
+print(end-start)
+
+#df = test_time(min, max, step)
+#print(df)
+#plot_times(df, path=path+"\\figura.png", naive=False, log=True)
 
 
