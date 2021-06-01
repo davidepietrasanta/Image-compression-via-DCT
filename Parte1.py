@@ -24,22 +24,37 @@ def dct(v):
         v: Is a np.array of one dimension [1:N]
         return: Discrete cosine transform of v
     """
-    N = len(v)
+    N = v.shape[0]
     c = np.zeros(N) #[0:N-1]
 
-    for k in range(0,N):
-        if k == 0:
-            a_k = 1/np.sqrt(N)
-        else:
-            a_k = np.sqrt(2)/np.sqrt(N)
+    sum = 0
+    for j in range(0,N):
+        sum = sum + ( np.cos(0 * np.pi * (2*(j+1) - 1)/(2*N)) * v[j] ) 
 
+    c[0] = np.sqrt(1/N)*sum
+
+    for k in range(1,N):
         sum = 0
         for j in range(0,N):
             sum = sum + ( np.cos(k * np.pi * (2*(j+1) - 1)/(2*N)) * v[j] ) 
 
-        c[k] = a_k * sum
+        c[k] = np.sqrt(2/N) * sum
 
     return c
+
+
+def dct_slow(matrix):
+    N = matrix.shape[0]
+    C = np.zeros( shape = (N,N) )
+    Z = np.zeros(matrix.shape)
+
+    C[0,:] = 1 * np.sqrt(1/N)
+    for k in range(1, N):
+        for j in range(N):
+            C[k, j] = np.cos(k * np.pi * (2*(j+1) - 1)/(2*N)) * np.sqrt(2/N)
+
+    Z = np.dot(C, matrix)
+    return Z
 
 
 def dct2(matrix):
@@ -48,8 +63,41 @@ def dct2(matrix):
         matrix: Is a np.array of one dimension [M:N]
         return: Discrete cosine transform of matrix
     """
-    N = len(matrix[0])
-    M = len(matrix) 
+    N = matrix.shape[0]
+    M = matrix.shape[1]
+    C1 = np.zeros( shape = (N,N) )
+    C2 = np.zeros( shape = (M,M) )
+    Z = np.zeros(matrix.shape)
+
+
+    for j in range(N):
+        C1[0, j] = np.sqrt(1/N)
+
+    for k in range(1, N):
+        for j in range(N):
+            C1[k, j] = np.cos(k * np.pi * (2*(j+1) - 1)/(2*N)) * np.sqrt(2/N)
+
+    for j in range(M):
+        C2[j, 0] = np.sqrt(1/M)
+
+    for k in range(1, M):
+        for j in range(M):
+            C2[j, k] = np.cos(k * np.pi * (2*(j+1) - 1)/(2*M)) * np.sqrt(2/M)
+
+    Z = np.dot(C1, matrix)
+    Z = np.dot(Z, C2)
+
+    return Z
+
+
+def dct2_slow(matrix):
+    """
+        DCT for two dimension np.array.
+        matrix: Is a np.array of one dimension [M:N]
+        return: Discrete cosine transform of matrix
+    """
+    N = matrix.shape[0]
+    M = matrix.shape[1]
     matrix_r = np.zeros( shape=(M, N) , dtype=np.float64 ) #To store the discrete cosine transform
     for i in range(0,M):
         matrix_r[i] = dct(matrix[i])
@@ -69,8 +117,8 @@ def naive_dct2(matrix):
         return: Discrete cosine transform of matrix
     """
     
-    N = len(matrix[0])
-    M = len(matrix) 
+    N = matrix.shape[0]
+    M = matrix.shape[1]
     matrix_r = np.zeros( shape=(M, N) , dtype=np.float64 ) #To store the discrete cosine transform
 
 
@@ -78,14 +126,14 @@ def naive_dct2(matrix):
         for j in range(0, N):
  
             if (i == 0):
-                ai = 1 / np.sqrt(M)
+                ai = np.sqrt(1/M)
             else:
-                ai = np.sqrt(2)/np.sqrt(M)
+                ai = np.sqrt(2/M)
             
             if (j == 0):
-                aj = 1 / np.sqrt(M)
+                aj = np.sqrt(1/N)
             else:
-                aj = np.sqrt(2)/np.sqrt(M)
+                aj = np.sqrt(2/N)
  
             w = 0
             for k in range(0,M):
@@ -104,15 +152,15 @@ def idct(c):
         c: Is a np.array of one dimension [0:N-1]
         return: Inverse discrete cosine transform of c
     """
-    N = len(c)
+    N = c.shape[0]
     v = np.zeros(N)
     for j in range(0,N):
         sum = 0
         for k in range(0,N):
             if k == 0:
-                a_k = 1/np.sqrt(N)
+                a_k = np.sqrt(1/N)
             else:
-                a_k = np.sqrt(2)/np.sqrt(N)
+                a_k = np.sqrt(2/N)
 
             sum = sum +  ( np.cos(k * np.pi * (2*(j+1) - 1)/(2*N)) * c[k] * a_k)
 
@@ -127,8 +175,8 @@ def idct2(matrix):
         matrix: Is a np.array of one dimension [M:N]
         return: Inverse discrete cosine transform of matrix
     """
-    N = len(matrix[0])
-    M = len(matrix) 
+    N = matrix.shape[0]
+    M = matrix.shape[1] 
     matrix_r = np.zeros( shape=(M, N) , dtype=np.float64 ) #To store the discrete cosine transform
     for i in range(0,M):
         matrix_r[i] = idct(matrix[i])
@@ -151,7 +199,7 @@ def random_matrix(N):
     return matrix
 
 
-def test_time(min, max, step, naive=True):
+def test_time(min, max, step, naive=False):
     """
         Return time for different test matrices.
         The tested matrices are multiple of 10 (dimension).
@@ -173,13 +221,17 @@ def test_time(min, max, step, naive=True):
         dct2(matrix)
         times_my.append( time.time() - start_time)
 
+        
+
         start_time = time.time()
         cv.dct(matrix/1.0)
         times_cv.append( time.time() - start_time)
 
         x.append(n)
         
-        print(times_cv)
+        #print(times_cv)
+        print(times_my)
+        
             
 
         if naive:
@@ -196,7 +248,7 @@ def test_time(min, max, step, naive=True):
     return df
 
 
-def plot_times(df, naive=True, path=None, log=True):
+def plot_times(df, naive=False, path=None, log=True):
     """
         Plot time for different test matrices.
         df: of different times recorded by functions,
@@ -276,10 +328,11 @@ def unit_test():
     x = np.array([231, 32, 233, 161, 24, 71, 140, 245])
     x_dct = np.array( [4.01e+02, 6.60e+00, 1.09e+02, -1.12e+02, 6.54e+01, 1.21e+02, 1.16e+02, 2.88e+01])
 
+
     assert array_equals( dct(x), x_dct, err=0.01 )
+    assert array_equals( dct_slow(x), x_dct, err=0.01 )
     assert array_equals( idct(dct(x)), x, err=0.01)
     assert array_equals( cv.dct(x/1.0), x_dct, err=5)
-   
     
 
     test_matrix = np.array ( [[ 231, 32, 233, 161, 24, 71, 140, 245],
@@ -300,7 +353,9 @@ def unit_test():
                         [7.88e+01, -6.45e+01, 1.18e+02, -1.50e+01, -1.37e+02, -3.06e+01, -1.05e+02, 3.98e+01],
                         [1.97e+01, -7.81e+01, 9.72e-01, -7.23e+01, -2.15e+01, 8.13e+01, 6.37e+01, 5.90e+00]])
 
+
     assert array_equals( naive_dct2(test_matrix),  test_matrix_dct, err=0.01 )
+    assert array_equals( dct2_slow(test_matrix),  test_matrix_dct, err=0.01 )
     assert array_equals( dct2(test_matrix),  test_matrix_dct, err=0.01 )
     assert array_equals( idct2( dct2(test_matrix) ), test_matrix, err=0.01 )
     assert array_equals( naive_dct2(test_matrix), dct2(test_matrix), err=0.01 )
@@ -308,24 +363,27 @@ def unit_test():
 
 
 import pathlib
-from scipy.fftpack import dct as scipy_dct
 
 unit_test()
 path = str(pathlib.Path(__file__).parent.absolute())
 
-min = 10
-max = 2510
+min = 100
+max = 2600
 step = 500
 
 matrix = random_matrix(max)
 start = time.time()
-#k = scipy_dct(scipy_dct(matrix.T, norm='ortho').T, norm='ortho')
 k  = cv.dct(matrix/1.0)
 end = time.time()
 print(end-start)
 
-#df = test_time(min, max, step)
-#print(df)
-#plot_times(df, path=path+"\\figura.png", naive=False, log=True)
+start = time.time()
+s = dct2(matrix)
+end = time.time()
+print(end-start)
+
+df = test_time(min, max, step)
+print(df)
+plot_times(df, path=path+"\\figura.png", log=True)
 
 
