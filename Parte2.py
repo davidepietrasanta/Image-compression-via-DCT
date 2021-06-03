@@ -180,42 +180,42 @@ def inverse(list_of_blocks):
     return list_of_blocks_inv
 
 '''
-def recompose_image(path, list_of_blocks, original_shape, F):
-    n_block_x = int(np.floor(original_shape[0] / F))
-    n_block_y = int(np.floor(original_shape[1] / F))
-    # print(n_block_x)
-    # print(n_block_y)
-    # N = len(list_of_blocks)
-    # for i in range(0, n_block_x):
-    #    for j in range(0, n_block_y):
-    # img = Image.open(path)
-    img = cv.imread(path, 0)
-    # Convert PIL images into NumPy arrays
-    picture = asarray(img)
-    picture_cut = picture[0:n_block_x * F, 0:n_block_y * F]
-    block_size = F
-    # Create the blocks
-    i = 0
-    for r in range(0, picture.shape[0] - block_size, block_size):
-        for c in range(0, picture.shape[1] - block_size, block_size):
-            picture_cut[r:r + block_size, c:c + block_size] = list_of_blocks[i]
-            i = i + 1
-    print(picture_cut)
-    print(type(picture))
-    picture_cut = picture_cut.reshape((n_block_x * F, n_block_y * F))
-    print(picture_cut)
-    print(type(picture_cut))
-    array_to_image(picture_cut / 1.0, bw=True, save=True, path=path)
-    cout = 0
-    for arr in picture_cut:
-        for n in arr:
-            if (n == 0):
-                cout = cout + 1
-    print(cout)
-    return picture_cut
+    def recompose_image(path, list_of_blocks, original_shape, F):
+        n_block_x = int(np.floor(original_shape[0] / F))
+        n_block_y = int(np.floor(original_shape[1] / F))
+        # print(n_block_x)
+        # print(n_block_y)
+        # N = len(list_of_blocks)
+        # for i in range(0, n_block_x):
+        #    for j in range(0, n_block_y):
+        # img = Image.open(path)
+        img = cv.imread(path, 0)
+        # Convert PIL images into NumPy arrays
+        picture = asarray(img)
+        picture_cut = picture[0:n_block_x * F, 0:n_block_y * F]
+        block_size = F
+        # Create the blocks
+        i = 0
+        for r in range(0, picture.shape[0] - block_size, block_size):
+            for c in range(0, picture.shape[1] - block_size, block_size):
+                picture_cut[r:r + block_size, c:c + block_size] = list_of_blocks[i]
+                i = i + 1
+        print(picture_cut)
+        print(type(picture))
+        picture_cut = picture_cut.reshape((n_block_x * F, n_block_y * F))
+        print(picture_cut)
+        print(type(picture_cut))
+        array_to_image(picture_cut / 1.0, bw=True, save=True, path=path)
+        cout = 0
+        for arr in picture_cut:
+            for n in arr:
+                if (n == 0):
+                    cout = cout + 1
+        print(cout)
+        return picture_cut
 '''
 
-def recomp(list_of_blocks, original_shape, F):
+def recompose_image(list_of_blocks, original_shape, F):
     n_block_x = int(np.floor(original_shape[0] / F))
     n_block_y = int(np.floor(original_shape[1] / F))
     real_x = n_block_x * F
@@ -262,20 +262,24 @@ def JPEG_compession(path, F, d):
     [list_b, original_shape] = divide_immage_in_blocks(path, F)
     list_c = compression(list_b)
 
-    #for block in list_c:
-    #    array_to_image(block, bw=True)
+    # Usefull to see if blocks are done correctly
+    #for block in list_b:
+    #   array_to_image(block, bw=True)  
+
     cut = cut_block(list_c, d)
     inv = inverse(cut)
-    #im = recompose_image(path, inv, original_shape, F)
-    im = recomp(inv, original_shape, F)
-    # im = recompose_image(path, inv, original_shape, F)
+    im = recompose_image(inv, original_shape, F)
     return im
 
 
 path = str(pathlib.Path(__file__).parent.absolute())
-# JPEG_simple(path + '\\40682662_ml.jpg')
 F = 300
 d = 50
-#JPEG_simple(path + '\\deer.bmp')
-im = JPEG_compession(path + '\\deer.bmp', F, d)
+
+pic1 = '\\40682662_ml.jpg'
+pic2 = '\\deer.bmp'
+
+#JPEG_simple(path + pic2)
+
+im = JPEG_compession(path + pic2, F, d)
 array_to_image(im, bw=True) 
