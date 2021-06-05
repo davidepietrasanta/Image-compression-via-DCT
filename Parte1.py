@@ -248,7 +248,7 @@ def test_time(min, max, step, naive=False):
     return df
 
 
-def plot_times(df, naive=False, path=None, log=True):
+def plot_times(df, naive=False, path=None, log=False, loglog=False):
     """
         Plot time for different test matrices.
         df: of different times recorded by functions,
@@ -263,6 +263,8 @@ def plot_times(df, naive=False, path=None, log=True):
 
     if(log):
         my_plot = plt.semilogy
+    elif(loglog):
+        my_plot = plt.loglog
     else:
         my_plot = plt.plot
 
@@ -384,6 +386,7 @@ print(end-start)
 
 df = test_time(min, max, step)
 print(df)
-plot_times(df, path=path+"\\figura.png", log=True)
+plot_times(df, path=path+"\\figura_log.png", log=True)
+plot_times(df, path=path+"\\figura_loglog.png", loglog=True)
 
 
