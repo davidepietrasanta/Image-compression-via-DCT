@@ -14,6 +14,89 @@ from PIL import Image
 from numpy import asarray
 import copy
 
+import sys
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
+
+class Parte2App(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+        self.left, self.top, self.width, self.height = 300, 300, 1080, 920
+
+        self.initUI()
+
+    def initUI(self):
+        grid = QGridLayout()
+        grid.addWidget(self.createUploadImageGroup(), 0, 0)
+        grid.addWidget(self.createParametersGroup(), 0, 1)
+        grid.addWidget(self.createOriginalImageGroup(), 1, 0)
+        grid.addWidget(self.createDCTImageGroup(), 1, 1)
+
+        self.setLayout(grid)
+
+        self.setWindowTitle('DCT - Parte 2')
+        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.show()
+
+    def createUploadImageGroup(self):
+        groupbox = QGroupBox('Carica Immagine')
+
+        pushbutton = QPushButton('Carica immagine', self)
+        pushbutton.setToolTip('Apertura finestra di ricerca file')
+        #pushbutton.clicked.connect(self.upload_image)
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(pushbutton)
+        groupbox.setLayout(vbox)
+
+        return groupbox
+
+    def createParametersGroup(self):
+        groupbox = QGroupBox('Parametri')
+
+        checkbox1 = QCheckBox('d')
+        checkbox2 = QCheckBox('F')
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(checkbox1)
+        vbox.addWidget(checkbox2)
+        groupbox.setLayout(vbox)
+
+        return groupbox
+
+    def createOriginalImageGroup(self):
+        groupbox = QGroupBox('Immagine Originale')
+
+        radio1 = QRadioButton('Radio1')
+        radio1.setChecked(True)
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(radio1)
+        vbox.addStretch(1)
+        groupbox.setLayout(vbox)
+
+        return groupbox
+
+    def createDCTImageGroup(self):
+        groupbox = QGroupBox('Immagine Processata')
+
+        radio1 = QRadioButton('Radio1')
+        radio1.setChecked(True)
+
+        vbox = QVBoxLayout()
+        vbox.addWidget(radio1)
+        vbox.addStretch(1)
+        groupbox.setLayout(vbox)
+
+        return groupbox
+
+if __name__ == '__main__':
+
+    app = QApplication(sys.argv) #create application object
+    ex = Parte2App()
+    sys.exit(app.exec_())
 
 def JPEG_simple(path):
     """
@@ -25,7 +108,7 @@ def JPEG_simple(path):
     im = im[0:im.shape[0] - 1, 0:im.shape[1] - 1]
     imF = cv.dct(im / 1.0)
     dim_cut = 200
-    for r in range(0,im.shape[0]):
+    for r in range(0, im.shape[0]):
         for c in range(0, im.shape[1]):
             if r + c > dim_cut:
                 imF[r][c] = 0
@@ -103,7 +186,7 @@ def compression(list_of_blocks):
     """
         Apply the dct on the list of blocks
     """
-    #list_of_blocks = copy.deepcopy(list_of_blocks)
+    # list_of_blocks = copy.deepcopy(list_of_blocks)
     list_blocks_dct = []
     for block in list_of_blocks:
         block_r = cv.dct(block / 1.0)
@@ -116,7 +199,7 @@ def cut_block(list_of_blocks, d):
     """
         Cut the frequency of the blocks
     """
-    list_of_blocks_cut = [] #copy.deepcopy(list_of_blocks)
+    list_of_blocks_cut = []  # copy.deepcopy(list_of_blocks)
     block_x = len(list_of_blocks[0])
     block_y = len(list_of_blocks[0][0])
     for block in list_of_blocks:
@@ -179,6 +262,7 @@ def inverse(list_of_blocks):
         list_of_blocks_inv.append(block_inv_fix)
     return list_of_blocks_inv
 
+
 '''
     def recompose_image(path, list_of_blocks, original_shape, F):
         n_block_x = int(np.floor(original_shape[0] / F))
@@ -215,6 +299,7 @@ def inverse(list_of_blocks):
         return picture_cut
 '''
 
+
 def recompose_image(list_of_blocks, original_shape, F):
     n_block_x = int(np.floor(original_shape[0] / F))
     n_block_y = int(np.floor(original_shape[1] / F))
@@ -226,11 +311,11 @@ def recompose_image(list_of_blocks, original_shape, F):
     N_blocks = len(list_of_blocks)
 
     for i in range(0, N_blocks):
-        #array_to_image(list_of_blocks[i], bw=True)
+        # array_to_image(list_of_blocks[i], bw=True)
         for y in range(0, F):
             for x in range(0, F):
                 m_y = (i % n_block_y) * F + y
-                m_x = int( np.floor( i / n_block_y) * F) + x
+                m_x = int(np.floor(i / n_block_y) * F) + x
                 matrix[m_x][m_y] = int(list_of_blocks[i][x][y])
 
     '''
@@ -252,6 +337,7 @@ def recompose_image(list_of_blocks, original_shape, F):
 
     return matrix
 
+
 def JPEG_compession(path, F, d):
     """
         Apply JPEG compression of image.
@@ -263,8 +349,8 @@ def JPEG_compession(path, F, d):
     list_c = compression(list_b)
 
     # Usefull to see if blocks are done correctly
-    #for block in list_b:
-    #   array_to_image(block, bw=True)  
+    # for block in list_b:
+    #   array_to_image(block, bw=True)
 
     cut = cut_block(list_c, d)
     inv = inverse(cut)
@@ -279,7 +365,7 @@ d = 50
 pic1 = '\\40682662_ml.jpg'
 pic2 = '\\deer.bmp'
 
-#JPEG_simple(path + pic2)
+# JPEG_simple(path + pic2)
 
 im = JPEG_compession(path + pic2, F, d)
-array_to_image(im, bw=True) 
+array_to_image(im, bw=True)
