@@ -17,13 +17,16 @@ import copy
 import sys
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from PyQt5.QtGui import *
 
 class Parte2App(QWidget):
 
     def __init__(self):
         super().__init__()
 
+        self.title = 'DCT - Parte 2'
         self.left, self.top, self.width, self.height = 300, 300, 1080, 920
+        self.image = QLabel(self)
 
         self.initUI()
 
@@ -36,57 +39,68 @@ class Parte2App(QWidget):
 
         self.setLayout(grid)
 
-        self.setWindowTitle('DCT - Parte 2')
+        self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         self.show()
 
     def createUploadImageGroup(self):
         groupbox = QGroupBox('Carica Immagine')
-
         pushbutton = QPushButton('Carica immagine', self)
-        pushbutton.setToolTip('Apertura finestra di ricerca file')
-        #pushbutton.clicked.connect(self.upload_image)
-
+        pushbutton.clicked.connect(self.getImage)
         vbox = QVBoxLayout()
         vbox.addWidget(pushbutton)
         groupbox.setLayout(vbox)
+        return groupbox
 
+    def getImage(self):
+        fname, _ = QFileDialog.getOpenFileName(self, 'Apri File',
+                                            'c:\\', "Image Files (*.bmp *.jpg *.jpeg)") #invoca finestra di dialogo
+        self.image.setPixmap(QPixmap(fname)) #salva immagine
+
+    def createOriginalImageGroup(self):
+        groupbox = QGroupBox('Immagine Originale')
+        vbox = QVBoxLayout()
+        vbox.addWidget(self.image) #visualizza immagine originale
+        vbox.addStretch(1)
+        groupbox.setLayout(vbox)
         return groupbox
 
     def createParametersGroup(self):
         groupbox = QGroupBox('Parametri')
 
-        checkbox1 = QCheckBox('d')
-        checkbox2 = QCheckBox('F')
+        self.lbld = QLabel('d')
+        self.spinboxd = QSpinBox()
+        self.spinboxd.setRange(-10, 30)
+        self.reslbld = QLabel('0')
+        self.spinboxd.valueChanged.connect(self.value_changed)
+        self.lblf = QLabel('F')
+        self.spinboxf = QSpinBox()
+        self.spinboxf.setRange(-10, 30)
+        self.reslblf = QLabel('0')
+        self.spinboxf.valueChanged.connect(self.value_changed)
 
         vbox = QVBoxLayout()
-        vbox.addWidget(checkbox1)
-        vbox.addWidget(checkbox2)
+        vbox.addWidget(self.lbld)
+        vbox.addWidget(self.spinboxd)
+        vbox.addWidget(self.reslbld)
+        vbox.addWidget(self.lblf)
+        vbox.addWidget(self.spinboxf)
+        vbox.addWidget(self.reslblf)
         groupbox.setLayout(vbox)
 
         return groupbox
 
-    def createOriginalImageGroup(self):
-        groupbox = QGroupBox('Immagine Originale')
-
-        radio1 = QRadioButton('Radio1')
-        radio1.setChecked(True)
-
-        vbox = QVBoxLayout()
-        vbox.addWidget(radio1)
-        vbox.addStretch(1)
-        groupbox.setLayout(vbox)
-
-        return groupbox
+    def value_changed(self):
+        self.reslbld.setText(str(self.spinboxd.value())) #setta d
+        self.reslblf.setText(str(self.spinboxf.value())) #setta f
 
     def createDCTImageGroup(self):
         groupbox = QGroupBox('Immagine Processata')
 
-        radio1 = QRadioButton('Radio1')
-        radio1.setChecked(True)
+        lbl = QLabel('Qui dovrebbe finirci la immagine processata')
 
         vbox = QVBoxLayout()
-        vbox.addWidget(radio1)
+        vbox.addWidget(lbl)
         vbox.addStretch(1)
         groupbox.setLayout(vbox)
 
