@@ -23,6 +23,7 @@ class Parte2App(QWidget):
     value_F = 0
     value_D = 0
     limitF = 0
+    limitD = 0
     path_immagine = "default_path"
 
     def __init__(self):
@@ -63,9 +64,13 @@ class Parte2App(QWidget):
 
     def getImage(self):
         fname, _ = QFileDialog.getOpenFileName(self, 'Apri File',
-                                            'c:\\', "Image Files (*.bmp)") #invoca finestra di dialogo
+                                            'c:\\', "Image Files (*.bmp *.jpeg *.jpg)") #invoca finestra di dialogo
         self.path_immagine = fname
-        self.image.setPixmap(QPixmap(fname)) #salva immagine
+        imgRead = cv.imread(fname)
+        self.imgHeight, self.imgWidth, imgChannel = imgRead.shape
+        self.image.setPixmap(QPixmap(fname))  # salva immagine
+        self.limitF = min(self.imgHeight, self.imgWidth)
+        self.spinboxf.setMaximum(self.limitF)
 
     def calcolaImage(self):
         # self.path_immagine = "C://Users//-Andrea-//Downloads//immagini//immagini//artificial//80x80.bmp"
@@ -88,7 +93,7 @@ class Parte2App(QWidget):
         groupbox = QGroupBox('Parametri')
         self.lblf = QLabel('F')
         self.spinboxf = QSpinBox()
-        self.spinboxf.setRange(1, 10000)
+        self.spinboxf.setMinimum(1)
         self.spinboxf.valueChanged.connect(self.value_changed)
         self.lbld = QLabel('d')
         self.spinboxd = QSpinBox()
@@ -106,8 +111,8 @@ class Parte2App(QWidget):
     def value_changed(self):
         self.value_D = self.spinboxd.value()
         self.value_F = self.spinboxf.value()
-        self.limitF = (2 * self.value_F) - 2
-        self.spinboxd.setMaximum(self.limitF)
+        self.limitD = (2 * self.value_F) - 2
+        self.spinboxd.setMaximum(self.limitD)
 
     def createDCTImageGroup(self):
         groupbox = QGroupBox('Immagine Processata')
