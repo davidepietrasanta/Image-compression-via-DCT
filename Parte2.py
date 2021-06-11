@@ -22,6 +22,7 @@ from PyQt5.QtGui import *
 class Parte2App(QWidget):
     value_F = 0
     value_D = 0
+    limitF=0
     path_immagine = "default_path"
 
     def __init__(self):
@@ -31,6 +32,7 @@ class Parte2App(QWidget):
         self.left, self.top, self.width, self.height = 300, 300, 1080, 920
         self.image = QLabel(self)
         self.image2 = QLabel(self)
+        self.imageScaled = QLabel(self)
 
         self.initUI()
 
@@ -78,45 +80,39 @@ class Parte2App(QWidget):
     def createOriginalImageGroup(self):
         groupbox = QGroupBox('Immagine Originale')
         vbox = QVBoxLayout()
-        vbox.addWidget(self.image) #visualizza immagine originale
+        vbox.addWidget(self.imageScaled) #visualizza immagine originale
         vbox.addStretch(1)
         groupbox.setLayout(vbox)
         return groupbox
 
     def createParametersGroup(self):
         groupbox = QGroupBox('Parametri')
-
-        self.lbld = QLabel('d')
-        self.spinboxd = QSpinBox()
-        self.spinboxd.setRange(1, 10000)
-        self.reslbld = QLabel('1')
-        self.spinboxd.valueChanged.connect(self.value_changed)
         self.lblf = QLabel('F')
         self.spinboxf = QSpinBox()
         self.spinboxf.setRange(1, 10000)
-        self.reslblf = QLabel('1')
         self.spinboxf.valueChanged.connect(self.value_changed)
+        self.lbld = QLabel('d')
+        self.spinboxd = QSpinBox()
+        self.spinboxd.setMinimum(0)
+        self.spinboxd.valueChanged.connect(self.value_changed)
         vbox = QVBoxLayout()
-        vbox.addWidget(self.lbld)
-        vbox.addWidget(self.spinboxd)
-        vbox.addWidget(self.reslbld)
         vbox.addWidget(self.lblf)
         vbox.addWidget(self.spinboxf)
-        vbox.addWidget(self.reslblf)
+        vbox.addWidget(self.lbld)
+        vbox.addWidget(self.spinboxd)
         groupbox.setLayout(vbox)
 
         return groupbox
 
     def value_changed(self):
-        self.reslbld.setText(str(self.spinboxd.value())) #setta d
         self.value_D = self.spinboxd.value()
-        self.reslblf.setText(str(self.spinboxf.value())) #setta f
         self.value_F = self.spinboxf.value()
+        self.limitF = (2 * self.value_F) - 2
+        self.spinboxd.setMaximum(self.limitF)
 
     def createDCTImageGroup(self):
         groupbox = QGroupBox('Immagine Processata')
 
-        # lbl = QLabel('Qui dovrebbe finirci la immagine processata')
         vbox = QVBoxLayout()
         vbox.addWidget(self.image2)
         vbox.addStretch(1)
