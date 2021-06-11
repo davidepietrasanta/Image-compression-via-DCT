@@ -22,7 +22,7 @@ from PyQt5.QtGui import *
 class Parte2App(QWidget):
     value_F = 0
     value_D = 0
-    limitF=0
+    limitF = 0
     path_immagine = "default_path"
 
     def __init__(self):
@@ -32,7 +32,6 @@ class Parte2App(QWidget):
         self.left, self.top, self.width, self.height = 300, 300, 1080, 920
         self.image = QLabel(self)
         self.image2 = QLabel(self)
-        self.imageScaled = QLabel(self)
 
         self.initUI()
 
@@ -64,7 +63,7 @@ class Parte2App(QWidget):
 
     def getImage(self):
         fname, _ = QFileDialog.getOpenFileName(self, 'Apri File',
-                                            'c:\\', "Image Files (*.bmp *.jpg *.jpeg)") #invoca finestra di dialogo
+                                            'c:\\', "Image Files (*.bmp)") #invoca finestra di dialogo
         self.path_immagine = fname
         self.image.setPixmap(QPixmap(fname)) #salva immagine
 
@@ -80,7 +79,7 @@ class Parte2App(QWidget):
     def createOriginalImageGroup(self):
         groupbox = QGroupBox('Immagine Originale')
         vbox = QVBoxLayout()
-        vbox.addWidget(self.imageScaled) #visualizza immagine originale
+        vbox.addWidget(self.image) #visualizza immagine originale
         vbox.addStretch(1)
         groupbox.setLayout(vbox)
         return groupbox
