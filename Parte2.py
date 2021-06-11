@@ -20,17 +20,16 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
 class Parte2App(QWidget):
-    value_F = 0
-    value_D = 0
-    limitF = 0
-    limitD = 0
+    value_F, value_D, limitF, limitD = 0, 0, 0, 0
     path_immagine = "default_path"
 
     def __init__(self):
         super().__init__()
 
         self.title = 'DCT - Parte 2'
-        self.left, self.top, self.width, self.height = 300, 300, 1080, 920
+        screen_resolution = app.desktop().screenGeometry()
+        self.width, self.height = screen_resolution.width(), screen_resolution.height()
+        self.left, self.top= 200, 200
         self.image = QLabel(self)
         self.image2 = QLabel(self)
 
@@ -46,7 +45,7 @@ class Parte2App(QWidget):
         self.setLayout(grid)
 
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setGeometry(self.left, self.top, int(round(self.width/2)), int(round(self.height/2)))
         self.show()
 
     def createUploadImageGroup(self):
@@ -54,12 +53,13 @@ class Parte2App(QWidget):
         pushbutton = QPushButton('Carica immagine', self)
         pushbutton.clicked.connect(self.getImage)
         vbox = QVBoxLayout()
+        vbox.addStretch(1)
         vbox.addWidget(pushbutton)
-        groupbox.setLayout(vbox)
-
         pushbutton2 = QPushButton('Calcola', self)
         pushbutton2.clicked.connect(self.calcolaImage)
         vbox.addWidget(pushbutton2)
+        vbox.addStretch(1)
+        groupbox.setLayout(vbox)
         return groupbox
 
     def getImage(self):
@@ -68,9 +68,17 @@ class Parte2App(QWidget):
         self.path_immagine = fname
         imgRead = cv.imread(fname)
         self.imgHeight, self.imgWidth, imgChannel = imgRead.shape
-        self.image.setPixmap(QPixmap(fname))  # salva immagine
+        self.image.setPixmap(QPixmap(fname).scaled(int(round(self.width/1.7)), int(round(self.height/1.7)), Qt.KeepAspectRatio))  # salva immagine
         self.limitF = min(self.imgHeight, self.imgWidth)
         self.spinboxf.setMaximum(self.limitF)
+
+        # msg = QMessageBox()
+        # msg.setIcon(QMessageBox.Critical)
+        # msg.setText("Errore")
+        # msg.setInformativeText('Immagine non in scala di grigi')
+        # msg.setWindowTitle("Errore")
+        # msg.exec_()
+
 
     def calcolaImage(self):
         # self.path_immagine = "C://Users//-Andrea-//Downloads//immagini//immagini//artificial//80x80.bmp"
@@ -78,14 +86,14 @@ class Parte2App(QWidget):
         #immagine2 = Image.fromarray(array, 'L')
         path_tmp = str(pathlib.Path(__file__).parent.absolute())  + "/temp.bmp"
         cv.imwrite(path_tmp, array)
-        self.image2.setPixmap(QPixmap(path_tmp))  # salva immagine
+        self.image2.setPixmap(QPixmap(path_tmp).scaled(int(round(self.width/1.7)), int(round(self.height/1.7)), Qt.KeepAspectRatio))  # salva immagine
 
 
     def createOriginalImageGroup(self):
         groupbox = QGroupBox('Immagine Originale')
         vbox = QVBoxLayout()
+        vbox.setAlignment(Qt.AlignCenter)
         vbox.addWidget(self.image) #visualizza immagine originale
-        vbox.addStretch(1)
         groupbox.setLayout(vbox)
         return groupbox
 
@@ -100,10 +108,12 @@ class Parte2App(QWidget):
         self.spinboxd.setMinimum(0)
         self.spinboxd.valueChanged.connect(self.value_changed)
         vbox = QVBoxLayout()
+        vbox.addStretch(1)
         vbox.addWidget(self.lblf)
         vbox.addWidget(self.spinboxf)
         vbox.addWidget(self.lbld)
         vbox.addWidget(self.spinboxd)
+        vbox.addStretch(1)
         groupbox.setLayout(vbox)
 
         return groupbox
@@ -116,10 +126,9 @@ class Parte2App(QWidget):
 
     def createDCTImageGroup(self):
         groupbox = QGroupBox('Immagine Processata')
-
         vbox = QVBoxLayout()
+        vbox.setAlignment(Qt.AlignCenter)
         vbox.addWidget(self.image2)
-        vbox.addStretch(1)
         groupbox.setLayout(vbox)
 
         return groupbox
