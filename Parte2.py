@@ -19,10 +19,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+
 class Parte2App(QWidget):
     value_F, value_D, limitF, limitD = 0, 0, 0, 0
     image_path = "default_path"
-
 
     def __init__(self):
         super().__init__()
@@ -30,12 +30,11 @@ class Parte2App(QWidget):
         self.title = 'DCT - Parte 2'
         screen_resolution = app.desktop().screenGeometry()
         self.width, self.height = screen_resolution.width(), screen_resolution.height()
-        self.left, self.top= 100, 100
+        self.left, self.top = 100, 100
         self.image = QLabel(self)
         self.image2 = QLabel(self)
 
         self.initUI()
-
 
     def initUI(self):
         grid = QGridLayout()
@@ -47,9 +46,8 @@ class Parte2App(QWidget):
         self.setLayout(grid)
 
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, int(round(self.width/2)), int(round(self.height/2)))
+        self.setGeometry(self.left, self.top, int(round(self.width / 2)), int(round(self.height / 2)))
         self.show()
-
 
     def createUploadImageGroup(self):
         groupbox = QGroupBox('Carica/Calcola Immagine')
@@ -65,7 +63,6 @@ class Parte2App(QWidget):
         groupbox.setLayout(vbox)
         return groupbox
 
-
     def createOriginalImageGroup(self):
         groupbox = QGroupBox('Immagine Originale')
         vbox = QVBoxLayout()
@@ -73,7 +70,6 @@ class Parte2App(QWidget):
         vbox.addWidget(self.image)
         groupbox.setLayout(vbox)
         return groupbox
-
 
     def createParametersGroup(self):
         groupbox = QGroupBox('Parametri')
@@ -96,13 +92,11 @@ class Parte2App(QWidget):
 
         return groupbox
 
-
     def value_changed(self):
         self.value_D = self.spinboxd.value()
         self.value_F = self.spinboxf.value()
         self.limitD = (2 * self.value_F) - 2
         self.spinboxd.setMaximum(self.limitD)
-
 
     def createCompressedImageGroup(self):
         groupbox = QGroupBox('Immagine Processata')
@@ -113,14 +107,13 @@ class Parte2App(QWidget):
 
         return groupbox
 
-
     def getImage(self):
         fname, _ = QFileDialog.getOpenFileName(self, 'Apri File',
-                                            'c:\\', "Image Files (*.bmp *.jpeg *.jpg)")
+                                               'c:\\', "Image Files (*.bmp *.jpeg *.jpg)")
         self.image_path = fname
         grayScaleCheck = QPixmap(fname).toImage().isGrayscale()
 
-        if grayScaleCheck==False:
+        if grayScaleCheck == False:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Critical)
             msg.setText("Errore")
@@ -135,12 +128,12 @@ class Parte2App(QWidget):
             self.limitF = min(self.imgHeight, self.imgWidth)
             self.spinboxf.setMaximum(self.limitF)
 
-
     def elaborateImage(self):
         array = JPEG_compression(self.image_path, self.value_F, self.value_D)
-        path_tmp = str(pathlib.Path(__file__).parent.absolute())  + "/temp.bmp"
+        path_tmp = str(pathlib.Path(__file__).parent.absolute()) + "/temp.bmp"
         cv.imwrite(path_tmp, array)
-        self.image2.setPixmap(QPixmap(path_tmp).scaled(int(round(self.width/1.8)), int(round(self.height/1.8)), Qt.KeepAspectRatio))
+        self.image2.setPixmap(
+            QPixmap(path_tmp).scaled(int(round(self.width / 1.8)), int(round(self.height / 1.8)), Qt.KeepAspectRatio))
 
 
 def JPEG_simple(path):
@@ -357,7 +350,6 @@ def JPEG_compression(path, F, d):
 
 
 if __name__ == '__main__':
-
     app = QApplication(sys.argv)
     ex = Parte2App()
     sys.exit(app.exec_())
