@@ -21,7 +21,8 @@ from PyQt5.QtGui import *
 
 class Parte2App(QWidget):
     value_F, value_D, limitF, limitD = 0, 0, 0, 0
-    path_immagine = "default_path"
+    image_path = "default_path"
+
 
     def __init__(self):
         super().__init__()
@@ -29,24 +30,26 @@ class Parte2App(QWidget):
         self.title = 'DCT - Parte 2'
         screen_resolution = app.desktop().screenGeometry()
         self.width, self.height = screen_resolution.width(), screen_resolution.height()
-        self.left, self.top= 200, 200
+        self.left, self.top= 100, 100
         self.image = QLabel(self)
         self.image2 = QLabel(self)
 
         self.initUI()
+
 
     def initUI(self):
         grid = QGridLayout()
         grid.addWidget(self.createUploadImageGroup(), 0, 0)
         grid.addWidget(self.createParametersGroup(), 0, 1)
         grid.addWidget(self.createOriginalImageGroup(), 1, 0)
-        grid.addWidget(self.createDCTImageGroup(), 1, 1)
+        grid.addWidget(self.createCompressedImageGroup(), 1, 1)
 
         self.setLayout(grid)
 
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, int(round(self.width/2)), int(round(self.height/2)))
         self.show()
+
 
     def createUploadImageGroup(self):
         groupbox = QGroupBox('Carica/Calcola Immagine')
@@ -56,46 +59,21 @@ class Parte2App(QWidget):
         vbox.addStretch(1)
         vbox.addWidget(pushbutton)
         pushbutton2 = QPushButton('Calcola', self)
-        pushbutton2.clicked.connect(self.calcolaImage)
+        pushbutton2.clicked.connect(self.elaborateImage)
         vbox.addWidget(pushbutton2)
         vbox.addStretch(1)
         groupbox.setLayout(vbox)
         return groupbox
-
-    def getImage(self):
-        fname, _ = QFileDialog.getOpenFileName(self, 'Apri File',
-                                            'c:\\', "Image Files (*.bmp *.jpeg *.jpg)") #invoca finestra di dialogo
-        self.path_immagine = fname
-        imgRead = cv.imread(fname)
-        self.imgHeight, self.imgWidth, imgChannel = imgRead.shape
-        self.image.setPixmap(QPixmap(fname).scaled(int(round(self.width/1.7)), int(round(self.height/1.7)), Qt.KeepAspectRatio))  # salva immagine
-        self.limitF = min(self.imgHeight, self.imgWidth)
-        self.spinboxf.setMaximum(self.limitF)
-
-        # msg = QMessageBox()
-        # msg.setIcon(QMessageBox.Critical)
-        # msg.setText("Errore")
-        # msg.setInformativeText('Immagine non in scala di grigi')
-        # msg.setWindowTitle("Errore")
-        # msg.exec_()
-
-
-    def calcolaImage(self):
-        # self.path_immagine = "C://Users//-Andrea-//Downloads//immagini//immagini//artificial//80x80.bmp"
-        array = JPEG_compession(self.path_immagine, self.value_F, self.value_D)
-        #immagine2 = Image.fromarray(array, 'L')
-        path_tmp = str(pathlib.Path(__file__).parent.absolute())  + "/temp.bmp"
-        cv.imwrite(path_tmp, array)
-        self.image2.setPixmap(QPixmap(path_tmp).scaled(int(round(self.width/1.7)), int(round(self.height/1.7)), Qt.KeepAspectRatio))  # salva immagine
 
 
     def createOriginalImageGroup(self):
         groupbox = QGroupBox('Immagine Originale')
         vbox = QVBoxLayout()
         vbox.setAlignment(Qt.AlignCenter)
-        vbox.addWidget(self.image) #visualizza immagine originale
+        vbox.addWidget(self.image)
         groupbox.setLayout(vbox)
         return groupbox
+
 
     def createParametersGroup(self):
         groupbox = QGroupBox('Parametri')
@@ -118,13 +96,15 @@ class Parte2App(QWidget):
 
         return groupbox
 
+
     def value_changed(self):
         self.value_D = self.spinboxd.value()
         self.value_F = self.spinboxf.value()
         self.limitD = (2 * self.value_F) - 2
         self.spinboxd.setMaximum(self.limitD)
 
-    def createDCTImageGroup(self):
+
+    def createCompressedImageGroup(self):
         groupbox = QGroupBox('Immagine Processata')
         vbox = QVBoxLayout()
         vbox.setAlignment(Qt.AlignCenter)
@@ -132,6 +112,35 @@ class Parte2App(QWidget):
         groupbox.setLayout(vbox)
 
         return groupbox
+
+
+    def getImage(self):
+        fname, _ = QFileDialog.getOpenFileName(self, 'Apri File',
+                                            'c:\\', "Image Files (*.bmp *.jpeg *.jpg)")
+        self.image_path = fname
+        grayScaleCheck = QPixmap(fname).toImage().isGrayscale()
+
+        if grayScaleCheck==False:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Critical)
+            msg.setText("Errore")
+            msg.setInformativeText('Immagine non in scala di grigi')
+            msg.setWindowTitle("Errore")
+            msg.exec_()
+        else:
+            imgRead = cv.imread(fname)
+            self.imgHeight, self.imgWidth, imgChannel = imgRead.shape
+            self.image.setPixmap(
+                QPixmap(fname).scaled(int(round(self.width / 1.8)), int(round(self.height / 1.8)), Qt.KeepAspectRatio))
+            self.limitF = min(self.imgHeight, self.imgWidth)
+            self.spinboxf.setMaximum(self.limitF)
+
+
+    def elaborateImage(self):
+        array = JPEG_compression(self.image_path, self.value_F, self.value_D)
+        path_tmp = str(pathlib.Path(__file__).parent.absolute())  + "/temp.bmp"
+        cv.imwrite(path_tmp, array)
+        self.image2.setPixmap(QPixmap(path_tmp).scaled(int(round(self.width/1.8)), int(round(self.height/1.8)), Qt.KeepAspectRatio))
 
 
 def JPEG_simple(path):
@@ -304,43 +313,6 @@ def inverse(list_of_blocks):
     return list_of_blocks_inv
 
 
-'''
-    def recompose_image(path, list_of_blocks, original_shape, F):
-        n_block_x = int(np.floor(original_shape[0] / F))
-        n_block_y = int(np.floor(original_shape[1] / F))
-        # print(n_block_x)
-        # print(n_block_y)
-        # N = len(list_of_blocks)
-        # for i in range(0, n_block_x):
-        #    for j in range(0, n_block_y):
-        # img = Image.open(path)
-        img = cv.imread(path, 0)
-        # Convert PIL images into NumPy arrays
-        picture = asarray(img)
-        picture_cut = picture[0:n_block_x * F, 0:n_block_y * F]
-        block_size = F
-        # Create the blocks
-        i = 0
-        for r in range(0, picture.shape[0] - block_size, block_size):
-            for c in range(0, picture.shape[1] - block_size, block_size):
-                picture_cut[r:r + block_size, c:c + block_size] = list_of_blocks[i]
-                i = i + 1
-        print(picture_cut)
-        print(type(picture))
-        picture_cut = picture_cut.reshape((n_block_x * F, n_block_y * F))
-        print(picture_cut)
-        print(type(picture_cut))
-        array_to_image(picture_cut / 1.0, bw=True, save=True, path=path)
-        cout = 0
-        for arr in picture_cut:
-            for n in arr:
-                if (n == 0):
-                    cout = cout + 1
-        print(cout)
-        return picture_cut
-'''
-
-
 def recompose_image(list_of_blocks, original_shape, F):
     n_block_x = int(np.floor(original_shape[0] / F))
     n_block_y = int(np.floor(original_shape[1] / F))
@@ -359,27 +331,10 @@ def recompose_image(list_of_blocks, original_shape, F):
                 m_x = int(np.floor(i / n_block_y) * F) + x
                 matrix[m_x][m_y] = int(list_of_blocks[i][x][y])
 
-    '''
-    block_row = []
-    for y in range(0, n_block_y):
-        block_row.append(list_of_blocks[y * n_block_x])
-        matrix
-    # np.concatenate((A,B), axis=1 )
-    for i in range(0, N_blocks):
-        # array_to_image(list_of_blocks[i], bw=True)
-        for x in range(1, n_block_x):
-            for y in range(1, n_block_x):
-                block_row[y] = np.concatenate((block_row[y - 1], list_of_blocks[y * n_block_x + x]), axis=1)
-    # matrix = [0]
-    # for y in range(1, n_block_x):
-    #    matrix = np.concatenate((matrix, block_row[y]), axis=0 )
-    print(block_row)
-    '''
-
     return matrix
 
 
-def JPEG_compession(path, F, d):
+def JPEG_compression(path, F, d):
     """
         Apply JPEG compression of image.
         path: Path of the image
@@ -400,21 +355,9 @@ def JPEG_compession(path, F, d):
     im = recompose_image(inv, original_shape, F)
     return im
 
-'''
-path = str(pathlib.Path(__file__).parent.absolute())
-F = 300
-d = 50
 
-pic1 = '\\40682662_ml.jpg'
-pic2 = '\\deer.bmp'
-
-# JPEG_simple(path + pic2)
-
-im = JPEG_compession(path + pic2, F, d)
-array_to_image(im, bw=True)
-'''
 if __name__ == '__main__':
 
-    app = QApplication(sys.argv) #create application object
+    app = QApplication(sys.argv)
     ex = Parte2App()
     sys.exit(app.exec_())
